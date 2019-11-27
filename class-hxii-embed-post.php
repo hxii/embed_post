@@ -1,5 +1,7 @@
 <?php
 /**
+ * Embed Post allows you to embed posts in other posts for easy reference.
+ *
  * @link              https://paulglushak.com
  * @since             1.0.0
  * @package           HXII_Embed_Post
@@ -19,6 +21,9 @@
 
 defined( 'ABSPATH' ) || die();
 
+/**
+ * Embed Post - [embed_post post_id=99]
+ */
 class HXII_Embed_Post {
 
 	/**

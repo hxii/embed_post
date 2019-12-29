@@ -10,7 +10,7 @@
  * Plugin Name:       HXII Embed Post
  * Plugin URI:        https://github.com/hxii/embed_post
  * Description:       Allows you to embed posts in other posts for easy reference.
- * Version:           1.0.1
+ * Version:           1.0.2
  * Author:            hxii
  * Author URI:        https://paulglushak.com
  * License:           GPL-2.0+
@@ -22,7 +22,7 @@
 defined( 'ABSPATH' ) || die();
 
 /**
- * Embed Post - [embed_post post_id=99]
+ * Embed Post - [embed_post post_id=99 class="default" excerpt=true]
  */
 class HXII_Embed_Post {
 
@@ -45,16 +45,31 @@ class HXII_Embed_Post {
 	 * @return string
 	 */
 	public function embed_post( $args ) {
+		$args = shortcode_atts( 
+			[
+				'post_id' => null,
+				'class'   => 'default',
+				'excerpt' => false,
+			],
+			$args,
+			'embed_post'
+		);
 		if ( isset( $args['post_id'] ) ) {
 			$post = get_post( $args['post_id'] );
 			if ( ! is_null( $post ) ) {
 				$title     = $post->post_title;
 				$permalink = get_permalink( $post );
 				$class     = ( isset( $args['class'] ) ) ? ' ' . $args['class'] : ' default';
-				$output    = apply_filters( 'the_content', $post->post_content );
-				return "<div class=\"embed_post{$class}\"><div class=\"embed_content\">$output</div>
-				<div class=\"embed_meta\">From <a href=\"$permalink\">$title</a> &ndash; Modified {$post->post_modified}</div>
-				</div>";
+				$author    = get_the_author_meta( 'user_nicename' , $post->post_author );
+				$output    = ( ( true === $args['excerpt'] ) ) ? get_the_excerpt( $post ) : apply_filters( 'the_content', $post->post_content );
+				return "<section class=\"embed_post{$class} {$post->post_type}\">
+					<div class=\"embed_content\">$output</div>
+					<div class=\"embed_meta\">
+						<span class=\"embed_source\">From <a href=\"$permalink\">$title</a></span>
+						<span class=\"embed_author\">By {$author}</span>
+						<span class=\"embed_modified\">Modified {$post->post_modified}</span>
+					</div>
+					</section>";
 			}
 		}
 	}
@@ -79,6 +94,12 @@ class HXII_Embed_Post {
 			font-size: .75em;
 			text-transform: uppercase;
 			font-weight: 600;
+		}
+		.embed_post.default .embed_meta span:after {
+			content: " \2013 "
+		}
+		.embed_post.default .embed_meta span:last-child:after {
+			content: "";
 		}
 		.embed_post.seamless {
 			background: transparent;
